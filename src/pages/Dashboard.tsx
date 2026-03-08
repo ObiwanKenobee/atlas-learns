@@ -12,6 +12,7 @@ import { GeospatialMap } from "@/components/atlas/GeospatialMap";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Download } from "lucide-react";
 import { exportInterventionsCsv, exportModelLogsCsv, exportPolicyLibraryCsv, exportFullReportCsv } from "@/lib/export";
+import { NotificationBadge } from "@/components/atlas/NotificationBadge";
 
 const filters = {
   timeHorizon: ["6 months", "1 year", "3 years", "5 years"],
