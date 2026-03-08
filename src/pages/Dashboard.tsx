@@ -12,6 +12,7 @@ import { GeospatialMap } from "@/components/atlas/GeospatialMap";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Download } from "lucide-react";
 import { exportInterventionsCsv, exportModelLogsCsv, exportPolicyLibraryCsv, exportFullReportCsv } from "@/lib/export";
+import { NotificationBadge } from "@/components/atlas/NotificationBadge";
 
 const filters = {
   timeHorizon: ["6 months", "1 year", "3 years", "5 years"],
@@ -60,6 +61,7 @@ export default function Dashboard() {
                 <span className="text-[9px] sm:text-[10px] font-mono text-atlas-positive">ACTIVE</span>
               </div>
               <span className="text-[9px] sm:text-[10px] font-mono text-muted-foreground hidden sm:inline">Model v4.3</span>
+              <NotificationBadge />
               <ExportButton onClick={exportFullReportCsv} label="Full Report" />
             </div>
           </div>
