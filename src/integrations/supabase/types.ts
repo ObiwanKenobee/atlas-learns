@@ -14,7 +14,161 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      interventions: {
+        Row: {
+          baseline_conditions: Json | null
+          code: string
+          confidence_at_issue: number
+          created_at: string
+          date_implemented: string | null
+          date_recommended: string
+          id: string
+          learning_delta: string | null
+          location: string
+          rationale: string | null
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          baseline_conditions?: Json | null
+          code: string
+          confidence_at_issue: number
+          created_at?: string
+          date_implemented?: string | null
+          date_recommended: string
+          id?: string
+          learning_delta?: string | null
+          location: string
+          rationale?: string | null
+          status?: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          baseline_conditions?: Json | null
+          code?: string
+          confidence_at_issue?: number
+          created_at?: string
+          date_implemented?: string | null
+          date_recommended?: string
+          id?: string
+          learning_delta?: string | null
+          location?: string
+          rationale?: string | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      model_versions: {
+        Row: {
+          affected_domains: string[] | null
+          created_at: string
+          id: string
+          parameter_shifts: Json | null
+          trigger_description: string
+          version_from: string
+          version_to: string
+        }
+        Insert: {
+          affected_domains?: string[] | null
+          created_at?: string
+          id?: string
+          parameter_shifts?: Json | null
+          trigger_description: string
+          version_from: string
+          version_to: string
+        }
+        Update: {
+          affected_domains?: string[] | null
+          created_at?: string
+          id?: string
+          parameter_shifts?: Json | null
+          trigger_description?: string
+          version_from?: string
+          version_to?: string
+        }
+        Relationships: []
+      }
+      outcomes: {
+        Row: {
+          actual: string | null
+          created_at: string
+          delta: string | null
+          favorable: boolean | null
+          id: string
+          intervention_id: string
+          measured_at: string | null
+          metric: string
+          predicted: string
+        }
+        Insert: {
+          actual?: string | null
+          created_at?: string
+          delta?: string | null
+          favorable?: boolean | null
+          id?: string
+          intervention_id: string
+          measured_at?: string | null
+          metric: string
+          predicted: string
+        }
+        Update: {
+          actual?: string | null
+          created_at?: string
+          delta?: string | null
+          favorable?: boolean | null
+          id?: string
+          intervention_id?: string
+          measured_at?: string | null
+          metric?: string
+          predicted?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outcomes_intervention_id_fkey"
+            columns: ["intervention_id"]
+            isOneToOne: false
+            referencedRelation: "interventions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      policy_patterns: {
+        Row: {
+          confidence: string
+          created_at: string
+          domains: string[] | null
+          id: string
+          insight: string
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          confidence: string
+          created_at?: string
+          domains?: string[] | null
+          id?: string
+          insight: string
+          source: string
+          updated_at?: string
+        }
+        Update: {
+          confidence?: string
+          created_at?: string
+          domains?: string[] | null
+          id?: string
+          insight?: string
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
