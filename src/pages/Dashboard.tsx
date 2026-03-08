@@ -61,6 +61,7 @@ export default function Dashboard() {
                 <span className="text-[9px] sm:text-[10px] font-mono text-atlas-positive">ACTIVE</span>
               </div>
               <span className="text-[9px] sm:text-[10px] font-mono text-muted-foreground hidden sm:inline">Model v4.3</span>
+              <NotificationBadge />
               <ExportButton onClick={exportFullReportCsv} label="Full Report" />
             </div>
           </div>
