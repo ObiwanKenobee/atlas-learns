@@ -7,12 +7,13 @@ import { ConfidenceCalibration } from "@/components/atlas/ConfidenceCalibration"
 import { LearningGaps } from "@/components/atlas/LearningGaps";
 import { PolicyLibrary } from "@/components/atlas/PolicyLibrary";
 import { DeltaVisualizer } from "@/components/atlas/DeltaVisualizer";
+import { CounterfactualExplorer } from "@/components/atlas/CounterfactualExplorer";
+import { GeospatialMap } from "@/components/atlas/GeospatialMap";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const filters = {
   timeHorizon: ["6 months", "1 year", "3 years", "5 years"],
   sector: ["All Sectors", "Flood Mitigation", "Energy", "Health", "Agriculture", "Ecosystem"],
-  geography: ["Global", "Sub-Saharan Africa", "Southeast Asia", "Latin America"],
 };
 
 export default function Dashboard() {
@@ -48,7 +49,7 @@ export default function Dashboard() {
           </div>
 
           {/* Filters */}
-          <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border">
+          <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border flex-wrap">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Filters</span>
             <div className="flex gap-1.5">
               {filters.timeHorizon.map((t) => (
@@ -66,7 +67,7 @@ export default function Dashboard() {
               ))}
             </div>
             <div className="w-px h-4 bg-border" />
-            <div className="flex gap-1.5">
+            <div className="flex gap-1.5 flex-wrap">
               {filters.sector.map((s) => (
                 <button
                   key={s}
@@ -98,9 +99,11 @@ export default function Dashboard() {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="bg-secondary/50 border border-border">
+          <TabsList className="bg-secondary/50 border border-border flex-wrap h-auto gap-0.5 p-1">
             <TabsTrigger value="overview" className="text-xs data-[state=active]:bg-card">Overview</TabsTrigger>
             <TabsTrigger value="interventions" className="text-xs data-[state=active]:bg-card">Interventions</TabsTrigger>
+            <TabsTrigger value="counterfactual" className="text-xs data-[state=active]:bg-card">Counterfactual</TabsTrigger>
+            <TabsTrigger value="geospatial" className="text-xs data-[state=active]:bg-card">Geospatial</TabsTrigger>
             <TabsTrigger value="models" className="text-xs data-[state=active]:bg-card">Model Updates</TabsTrigger>
             <TabsTrigger value="policies" className="text-xs data-[state=active]:bg-card">Policy Library</TabsTrigger>
             <TabsTrigger value="gaps" className="text-xs data-[state=active]:bg-card">Learning Gaps</TabsTrigger>
@@ -108,12 +111,10 @@ export default function Dashboard() {
 
           <TabsContent value="overview">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-              {/* Left column */}
               <div className="lg:col-span-7 space-y-4">
                 <ForecastComparison />
                 <DeltaVisualizer />
               </div>
-              {/* Right column */}
               <div className="lg:col-span-5 space-y-4">
                 <ConfidenceCalibration />
                 <div className="rounded-lg border border-border bg-card p-5">
@@ -147,6 +148,70 @@ export default function Dashboard() {
                           <span className="text-xs text-foreground">{s.label}</span>
                         </div>
                         <span className="font-mono text-xs font-bold text-foreground">{s.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="counterfactual">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <div className="lg:col-span-8">
+                <CounterfactualExplorer />
+              </div>
+              <div className="lg:col-span-4 space-y-4">
+                <ConfidenceCalibration />
+                <div className="rounded-lg border border-border bg-card p-5">
+                  <h3 className="text-sm font-semibold text-foreground mb-1">Counterfactual Coverage</h3>
+                  <p className="text-xs text-muted-foreground mb-4">How many interventions have modeled alternatives?</p>
+                  <div className="space-y-3">
+                    {[
+                      { label: "Full counterfactual", pct: 28, color: "bg-atlas-positive" },
+                      { label: "Partial comparison", pct: 35, color: "bg-atlas-warning" },
+                      { label: "No alternative modeled", pct: 37, color: "bg-atlas-neutral" },
+                    ].map((item) => (
+                      <div key={item.label}>
+                        <div className="flex justify-between text-[11px] mb-1">
+                          <span className="text-foreground">{item.label}</span>
+                          <span className="font-mono text-muted-foreground">{item.pct}%</span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+                          <div className={`h-full rounded-full ${item.color} transition-all`} style={{ width: `${item.pct}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="geospatial">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <div className="lg:col-span-8">
+                <GeospatialMap />
+              </div>
+              <div className="lg:col-span-4 space-y-4">
+                <DeltaVisualizer />
+                <div className="rounded-lg border border-border bg-card p-5">
+                  <h3 className="text-sm font-semibold text-foreground mb-1">Regional Summary</h3>
+                  <p className="text-xs text-muted-foreground mb-4">Intervention distribution by region</p>
+                  <div className="space-y-3">
+                    {[
+                      { label: "Sub-Saharan Africa", count: 14, accuracy: "76%" },
+                      { label: "South Asia", count: 9, accuracy: "71%" },
+                      { label: "Southeast Asia", count: 7, accuracy: "—" },
+                      { label: "Latin America", count: 11, accuracy: "84%" },
+                      { label: "Other", count: 5, accuracy: "69%" },
+                    ].map((r) => (
+                      <div key={r.label} className="flex items-center justify-between">
+                        <span className="text-xs text-foreground">{r.label}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="font-mono text-[10px] text-muted-foreground">{r.count} interventions</span>
+                          <span className="font-mono text-xs font-bold text-foreground w-8 text-right">{r.accuracy}</span>
+                        </div>
                       </div>
                     ))}
                   </div>
