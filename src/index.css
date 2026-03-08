@@ -118,6 +118,14 @@
     animation: fade-in-up 0.4s ease-out forwards;
   }
 
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   .animate-pulse-subtle {
     animation: pulse-subtle 3s ease-in-out infinite;
   }
