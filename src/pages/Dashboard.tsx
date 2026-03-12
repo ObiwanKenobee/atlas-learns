@@ -66,6 +66,25 @@ export default function Dashboard() {
               </div>
               <span className="text-[9px] sm:text-[10px] font-mono text-muted-foreground hidden sm:inline">Model v4.3</span>
               <NotificationBadge />
+              {user ? (
+                <button
+                  onClick={() => signOut()}
+                  className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-1 rounded-md bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border transition-all"
+                  title="Sign out"
+                >
+                  <LogOut className="w-3 h-3" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate("/auth")}
+                  className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-1 rounded-md bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border transition-all"
+                  title="Admin login"
+                >
+                  <LogIn className="w-3 h-3" />
+                  <span className="hidden sm:inline">Admin</span>
+                </button>
+              )}
               <ExportButton onClick={exportFullReportCsv} label="Full Report" />
             </div>
           </div>
