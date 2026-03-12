@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { MetricCard } from "@/components/atlas/MetricCard";
 import { InterventionTracker } from "@/components/atlas/InterventionTracker";
 import { ForecastComparison } from "@/components/atlas/ForecastComparison";
@@ -10,9 +11,10 @@ import { DeltaVisualizer } from "@/components/atlas/DeltaVisualizer";
 import { CounterfactualExplorer } from "@/components/atlas/CounterfactualExplorer";
 import { GeospatialMap } from "@/components/atlas/GeospatialMap";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download } from "lucide-react";
+import { Download, LogIn, LogOut } from "lucide-react";
 import { exportInterventionsCsv, exportModelLogsCsv, exportPolicyLibraryCsv, exportFullReportCsv } from "@/lib/export";
 import { NotificationBadge } from "@/components/atlas/NotificationBadge";
+import { useAuth } from "@/hooks/useAuth";
 
 const filters = {
   timeHorizon: ["6 months", "1 year", "3 years", "5 years"],
