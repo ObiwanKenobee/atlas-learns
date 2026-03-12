@@ -22,11 +22,14 @@ export type Database = {
           created_at: string
           date_implemented: string | null
           date_recommended: string
+          expert_annotations: Json | null
           id: string
           learning_delta: string | null
+          linked_datasets: Json | null
           location: string
           rationale: string | null
           status: string
+          timeline: Json | null
           title: string
           type: string
           updated_at: string
@@ -38,11 +41,14 @@ export type Database = {
           created_at?: string
           date_implemented?: string | null
           date_recommended: string
+          expert_annotations?: Json | null
           id?: string
           learning_delta?: string | null
+          linked_datasets?: Json | null
           location: string
           rationale?: string | null
           status?: string
+          timeline?: Json | null
           title: string
           type: string
           updated_at?: string
@@ -54,11 +60,14 @@ export type Database = {
           created_at?: string
           date_implemented?: string | null
           date_recommended?: string
+          expert_annotations?: Json | null
           id?: string
           learning_delta?: string | null
+          linked_datasets?: Json | null
           location?: string
           rationale?: string | null
           status?: string
+          timeline?: Json | null
           title?: string
           type?: string
           updated_at?: string

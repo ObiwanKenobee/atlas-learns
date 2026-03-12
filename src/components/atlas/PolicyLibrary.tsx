@@ -1,50 +1,10 @@
+import { useState } from "react";
 import { cn } from "@/lib/utils";
-
-interface PolicyInsight {
-  insight: string;
-  confidence: "high" | "medium" | "emerging";
-  domains: string[];
-  source: string;
-}
-
-const policies: PolicyInsight[] = [
-  {
-    insight: "Wetland restoration outperforms concrete barriers in moderate flood zones with intact upstream ecosystems",
-    confidence: "high",
-    domains: ["Flood Mitigation", "Ecosystem"],
-    source: "14 interventions, 4 regions",
-  },
-  {
-    insight: "Flood relocation policies fail more often where local trust scores are below 45%",
-    confidence: "high",
-    domains: ["Governance", "Migration"],
-    source: "9 interventions, 6 regions",
-  },
-  {
-    insight: "Distributed solar resilience gains are strongest when paired with local maintenance cooperatives",
-    confidence: "medium",
-    domains: ["Energy", "Community"],
-    source: "7 interventions, 3 regions",
-  },
-  {
-    insight: "Reforestation projects show delayed but compounding water retention gains after year three",
-    confidence: "medium",
-    domains: ["Reforestation", "Water"],
-    source: "11 interventions, 5 regions",
-  },
-  {
-    insight: "Community health worker networks require minimum 60% geographic coverage to produce measurable early detection improvements",
-    confidence: "emerging",
-    domains: ["Health", "Urban"],
-    source: "4 interventions, 2 regions",
-  },
-  {
-    insight: "Regenerative agriculture adoption accelerates when combined with market access programs",
-    confidence: "emerging",
-    domains: ["Agriculture", "Economics"],
-    source: "3 interventions, 2 regions",
-  },
-];
+import { usePolicyPatterns, useDeletePolicyPattern } from "@/hooks/usePolicyPatterns";
+import { useAuth } from "@/hooks/useAuth";
+import { PolicyPatternForm } from "./PolicyPatternForm";
+import { Plus, Trash2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const confStyles: Record<string, string> = {
   high: "bg-atlas-positive/10 text-atlas-positive border-atlas-positive/20",
@@ -53,28 +13,74 @@ const confStyles: Record<string, string> = {
 };
 
 export function PolicyLibrary() {
+  const { data: patterns, isLoading } = usePolicyPatterns();
+  const deletePattern = useDeletePolicyPattern();
+  const { user } = useAuth();
+  const [showForm, setShowForm] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-2.5">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="rounded-lg border border-border bg-card p-4 animate-pulse">
+            <div className="h-3 bg-muted rounded w-full mb-2" />
+            <div className="h-3 bg-muted rounded w-1/2" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const policies = patterns ?? [];
+
   return (
     <div className="space-y-2.5">
+      {user && (
+        <button
+          onClick={() => setShowForm(true)}
+          className="inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          <Plus className="w-3.5 h-3.5" /> Add Pattern
+        </button>
+      )}
+
       {policies.map((p, i) => (
         <div
-          key={i}
+          key={p.id}
           className="animate-fade-in-up rounded-lg border border-border bg-card p-4 hover:border-primary/20 transition-all duration-300"
           style={{ animationDelay: `${i * 50}ms` }}
         >
           <p className="text-xs text-foreground leading-relaxed mb-2.5">{p.insight}</p>
           <div className="flex items-center justify-between">
             <div className="flex gap-1.5 flex-wrap">
-              {p.domains.map((d) => (
+              {(p.domains || []).map((d: string) => (
                 <span key={d} className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground">{d}</span>
               ))}
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-muted-foreground">{p.source}</span>
-              <span className={cn("text-[10px] font-mono px-1.5 py-0.5 rounded border", confStyles[p.confidence])}>{p.confidence}</span>
+              <span className={cn("text-[10px] font-mono px-1.5 py-0.5 rounded border", confStyles[p.confidence] || "")}>{p.confidence}</span>
+              {user && (
+                <button
+                  onClick={() => {
+                    if (confirm("Delete this pattern?")) {
+                      deletePattern.mutate(p.id, {
+                        onSuccess: () => toast({ title: "Deleted" }),
+                        onError: (err) => toast({ title: "Error", description: err.message, variant: "destructive" }),
+                      });
+                    }
+                  }}
+                  className="p-1 rounded hover:bg-destructive/10 transition-colors"
+                >
+                  <Trash2 className="w-3 h-3 text-atlas-negative" />
+                </button>
+              )}
             </div>
           </div>
         </div>
       ))}
+
+      <PolicyPatternForm open={showForm} onOpenChange={setShowForm} />
     </div>
   );
 }
