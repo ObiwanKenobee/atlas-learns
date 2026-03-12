@@ -37,6 +37,8 @@ function ExportButton({ onClick, label }: { onClick: () => void; label: string }
 export default function Dashboard() {
   const [timeHorizon, setTimeHorizon] = useState("1 year");
   const [sector, setSector] = useState("All Sectors");
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
