@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 import { useInterventions, useDeleteIntervention, type Intervention } from "@/hooks/useInterventions";
 import { useAuth } from "@/hooks/useAuth";
 import { InterventionForm } from "./InterventionForm";
-import { Plus, Trash2 } from "lucide-react";
+import { OutcomeForm } from "./OutcomeForm";
+import { Plus, Trash2, Pencil, BarChart3 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export interface InterventionData {
@@ -180,6 +181,8 @@ export function InterventionTracker() {
   const { user } = useAuth();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [editItem, setEditItem] = useState<Intervention | null>(null);
+  const [outcomeItem, setOutcomeItem] = useState<Intervention | null>(null);
 
   const selectedItem = interventionsList?.find((i) => i.id === selectedId);
 
@@ -203,7 +206,7 @@ export function InterventionTracker() {
     <div className="space-y-3">
       {user && (
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => { setEditItem(null); setShowForm(true); }}
           className="inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           <Plus className="w-3.5 h-3.5" /> Add Intervention
@@ -229,20 +232,36 @@ export function InterventionTracker() {
             </div>
             <div className="flex items-center gap-2 shrink-0 ml-4">
               {user && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (confirm("Delete this intervention?")) {
-                      deleteIntervention.mutate(item.id, {
-                        onSuccess: () => toast({ title: "Deleted" }),
-                        onError: (err) => toast({ title: "Error", description: err.message, variant: "destructive" }),
-                      });
-                    }
-                  }}
-                  className="p-1 rounded hover:bg-destructive/10 transition-colors"
-                >
-                  <Trash2 className="w-3.5 h-3.5 text-atlas-negative" />
-                </button>
+                <>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setOutcomeItem(item); }}
+                    className="p-1 rounded hover:bg-primary/10 transition-colors"
+                    title="Manage outcomes"
+                  >
+                    <BarChart3 className="w-3.5 h-3.5 text-primary" />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setEditItem(item); setShowForm(true); }}
+                    className="p-1 rounded hover:bg-primary/10 transition-colors"
+                    title="Edit"
+                  >
+                    <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm("Delete this intervention?")) {
+                        deleteIntervention.mutate(item.id, {
+                          onSuccess: () => toast({ title: "Deleted" }),
+                          onError: (err) => toast({ title: "Error", description: err.message, variant: "destructive" }),
+                        });
+                      }
+                    }}
+                    className="p-1 rounded hover:bg-destructive/10 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-atlas-negative" />
+                  </button>
+                </>
               )}
               <div className="text-right">
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Confidence</div>
@@ -301,7 +320,16 @@ export function InterventionTracker() {
         <InterventionModal item={selectedItem} open={!!selectedId} onOpenChange={(v) => !v && setSelectedId(null)} />
       )}
 
-      <InterventionForm open={showForm} onOpenChange={setShowForm} />
+      <InterventionForm open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) setEditItem(null); }} editItem={editItem} />
+
+      {outcomeItem && (
+        <OutcomeForm
+          open={!!outcomeItem}
+          onOpenChange={(v) => { if (!v) setOutcomeItem(null); }}
+          interventionId={outcomeItem.id}
+          outcomes={outcomeItem.outcomes}
+        />
+      )}
     </div>
   );
 }
