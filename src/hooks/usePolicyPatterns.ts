@@ -42,6 +42,17 @@ export function useCreatePolicyPattern() {
   });
 }
 
+export function useUpdatePolicyPattern() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...data }: TablesUpdate<"policy_patterns"> & { id: string }) => {
+      const { error } = await supabase.from("policy_patterns").update(data).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["policy_patterns"] }),
+  });
+}
+
 export function useDeletePolicyPattern() {
   const queryClient = useQueryClient();
   return useMutation({

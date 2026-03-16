@@ -42,6 +42,17 @@ export function useCreateModelVersion() {
   });
 }
 
+export function useUpdateModelVersion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...data }: TablesUpdate<"model_versions"> & { id: string }) => {
+      const { error } = await supabase.from("model_versions").update(data).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["model_versions"] }),
+  });
+}
+
 export function useDeleteModelVersion() {
   const queryClient = useQueryClient();
   return useMutation({
