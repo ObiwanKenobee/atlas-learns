@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useModelVersions, useDeleteModelVersion } from "@/hooks/useModelVersions";
+import { useModelVersions, useDeleteModelVersion, type ModelVersion } from "@/hooks/useModelVersions";
 import { useAuth } from "@/hooks/useAuth";
 import { ModelVersionForm } from "./ModelVersionForm";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export function ModelUpdateLog() {
@@ -11,6 +11,7 @@ export function ModelUpdateLog() {
   const deleteVersion = useDeleteModelVersion();
   const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
+  const [editItem, setEditItem] = useState<ModelVersion | null>(null);
 
   if (isLoading) {
     return (
@@ -32,7 +33,7 @@ export function ModelUpdateLog() {
     <div className="space-y-3">
       {user && (
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => { setEditItem(null); setShowForm(true); }}
           className="inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           <Plus className="w-3.5 h-3.5" /> Add Version
@@ -55,19 +56,28 @@ export function ModelUpdateLog() {
                 <span className="text-[11px] text-muted-foreground">· {new Date(log.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
               </div>
               {user && (
-                <button
-                  onClick={() => {
-                    if (confirm("Delete this model version?")) {
-                      deleteVersion.mutate(log.id, {
-                        onSuccess: () => toast({ title: "Deleted" }),
-                        onError: (err) => toast({ title: "Error", description: err.message, variant: "destructive" }),
-                      });
-                    }
-                  }}
-                  className="p-1 rounded hover:bg-destructive/10 transition-colors"
-                >
-                  <Trash2 className="w-3 h-3 text-atlas-negative" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => { setEditItem(log); setShowForm(true); }}
+                    className="p-1 rounded hover:bg-primary/10 transition-colors"
+                    title="Edit"
+                  >
+                    <Pencil className="w-3 h-3 text-muted-foreground" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm("Delete this model version?")) {
+                        deleteVersion.mutate(log.id, {
+                          onSuccess: () => toast({ title: "Deleted" }),
+                          onError: (err) => toast({ title: "Error", description: err.message, variant: "destructive" }),
+                        });
+                      }
+                    }}
+                    className="p-1 rounded hover:bg-destructive/10 transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3 text-atlas-negative" />
+                  </button>
+                </div>
               )}
             </div>
             <p className="text-xs text-foreground/80 leading-relaxed mb-3">{log.trigger_description}</p>
@@ -94,7 +104,7 @@ export function ModelUpdateLog() {
         );
       })}
 
-      <ModelVersionForm open={showForm} onOpenChange={setShowForm} />
+      <ModelVersionForm open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) setEditItem(null); }} editItem={editItem} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
-import type { Tables, TablesInsert } from "@/integrations/supabase/types";
+import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 
 export type ModelVersion = Tables<"model_versions">;
 
@@ -36,6 +36,17 @@ export function useCreateModelVersion() {
   return useMutation({
     mutationFn: async (data: TablesInsert<"model_versions">) => {
       const { error } = await supabase.from("model_versions").insert(data);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["model_versions"] }),
+  });
+}
+
+export function useUpdateModelVersion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...data }: TablesUpdate<"model_versions"> & { id: string }) => {
+      const { error } = await supabase.from("model_versions").update(data).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["model_versions"] }),

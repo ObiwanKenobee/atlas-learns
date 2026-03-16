@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
-import type { Tables, TablesInsert } from "@/integrations/supabase/types";
+import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 
 export type PolicyPattern = Tables<"policy_patterns">;
 
@@ -36,6 +36,17 @@ export function useCreatePolicyPattern() {
   return useMutation({
     mutationFn: async (data: TablesInsert<"policy_patterns">) => {
       const { error } = await supabase.from("policy_patterns").insert(data);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["policy_patterns"] }),
+  });
+}
+
+export function useUpdatePolicyPattern() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...data }: TablesUpdate<"policy_patterns"> & { id: string }) => {
+      const { error } = await supabase.from("policy_patterns").update(data).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["policy_patterns"] }),

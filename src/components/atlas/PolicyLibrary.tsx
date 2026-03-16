@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { usePolicyPatterns, useDeletePolicyPattern } from "@/hooks/usePolicyPatterns";
+import { usePolicyPatterns, useDeletePolicyPattern, type PolicyPattern } from "@/hooks/usePolicyPatterns";
 import { useAuth } from "@/hooks/useAuth";
 import { PolicyPatternForm } from "./PolicyPatternForm";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const confStyles: Record<string, string> = {
@@ -17,6 +17,7 @@ export function PolicyLibrary() {
   const deletePattern = useDeletePolicyPattern();
   const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
+  const [editItem, setEditItem] = useState<PolicyPattern | null>(null);
 
   if (isLoading) {
     return (
@@ -37,7 +38,7 @@ export function PolicyLibrary() {
     <div className="space-y-2.5">
       {user && (
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => { setEditItem(null); setShowForm(true); }}
           className="inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           <Plus className="w-3.5 h-3.5" /> Add Pattern
@@ -61,26 +62,35 @@ export function PolicyLibrary() {
               <span className="text-[10px] text-muted-foreground">{p.source}</span>
               <span className={cn("text-[10px] font-mono px-1.5 py-0.5 rounded border", confStyles[p.confidence] || "")}>{p.confidence}</span>
               {user && (
-                <button
-                  onClick={() => {
-                    if (confirm("Delete this pattern?")) {
-                      deletePattern.mutate(p.id, {
-                        onSuccess: () => toast({ title: "Deleted" }),
-                        onError: (err) => toast({ title: "Error", description: err.message, variant: "destructive" }),
-                      });
-                    }
-                  }}
-                  className="p-1 rounded hover:bg-destructive/10 transition-colors"
-                >
-                  <Trash2 className="w-3 h-3 text-atlas-negative" />
-                </button>
+                <>
+                  <button
+                    onClick={() => { setEditItem(p); setShowForm(true); }}
+                    className="p-1 rounded hover:bg-primary/10 transition-colors"
+                    title="Edit"
+                  >
+                    <Pencil className="w-3 h-3 text-muted-foreground" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm("Delete this pattern?")) {
+                        deletePattern.mutate(p.id, {
+                          onSuccess: () => toast({ title: "Deleted" }),
+                          onError: (err) => toast({ title: "Error", description: err.message, variant: "destructive" }),
+                        });
+                      }
+                    }}
+                    className="p-1 rounded hover:bg-destructive/10 transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3 text-atlas-negative" />
+                  </button>
+                </>
               )}
             </div>
           </div>
         </div>
       ))}
 
-      <PolicyPatternForm open={showForm} onOpenChange={setShowForm} />
+      <PolicyPatternForm open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) setEditItem(null); }} editItem={editItem} />
     </div>
   );
 }

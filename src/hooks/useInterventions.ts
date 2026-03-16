@@ -89,3 +89,25 @@ export function useCreateOutcome() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["interventions"] }),
   });
 }
+
+export function useUpdateOutcome() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...data }: TablesUpdate<"outcomes"> & { id: string }) => {
+      const { error } = await supabase.from("outcomes").update(data).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["interventions"] }),
+  });
+}
+
+export function useDeleteOutcome() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("outcomes").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["interventions"] }),
+  });
+}
