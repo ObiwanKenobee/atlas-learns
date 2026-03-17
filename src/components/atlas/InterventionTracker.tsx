@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
@@ -6,6 +6,7 @@ import { useInterventions, useDeleteIntervention, type Intervention } from "@/ho
 import { useAuth } from "@/hooks/useAuth";
 import { InterventionForm } from "./InterventionForm";
 import { OutcomeForm } from "./OutcomeForm";
+import { InterventionFilters } from "./InterventionFilters";
 import { Plus, Trash2, Pencil, BarChart3 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -184,6 +185,43 @@ export function InterventionTracker() {
   const [editItem, setEditItem] = useState<Intervention | null>(null);
   const [outcomeItem, setOutcomeItem] = useState<Intervention | null>(null);
 
+  // Filter state
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [locationFilter, setLocationFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+
+  const locations = useMemo(() => {
+    const locs = new Set((interventionsList ?? []).map((i) => i.location));
+    return Array.from(locs).sort();
+  }, [interventionsList]);
+
+  const items = useMemo(() => {
+    let filtered = interventionsList ?? [];
+    if (search) {
+      const q = search.toLowerCase();
+      filtered = filtered.filter((i) =>
+        i.title.toLowerCase().includes(q) ||
+        i.code.toLowerCase().includes(q) ||
+        i.location.toLowerCase().includes(q)
+      );
+    }
+    if (statusFilter.length > 0) {
+      filtered = filtered.filter((i) => statusFilter.includes(i.status));
+    }
+    if (locationFilter) {
+      filtered = filtered.filter((i) => i.location === locationFilter);
+    }
+    if (dateFrom) {
+      filtered = filtered.filter((i) => i.date_recommended >= dateFrom);
+    }
+    if (dateTo) {
+      filtered = filtered.filter((i) => i.date_recommended <= dateTo);
+    }
+    return filtered;
+  }, [interventionsList, search, statusFilter, locationFilter, dateFrom, dateTo]);
+
   const selectedItem = interventionsList?.find((i) => i.id === selectedId);
 
   if (isLoading) {
@@ -200,18 +238,30 @@ export function InterventionTracker() {
     );
   }
 
-  const items = interventionsList ?? [];
-
   return (
     <div className="space-y-3">
-      {user && (
-        <button
-          onClick={() => { setEditItem(null); setShowForm(true); }}
-          className="inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          <Plus className="w-3.5 h-3.5" /> Add Intervention
-        </button>
-      )}
+      <InterventionFilters
+        search={search} onSearchChange={setSearch}
+        statusFilter={statusFilter} onStatusFilterChange={setStatusFilter}
+        locationFilter={locationFilter} onLocationFilterChange={setLocationFilter}
+        dateFrom={dateFrom} onDateFromChange={setDateFrom}
+        dateTo={dateTo} onDateToChange={setDateTo}
+        locations={locations}
+      />
+
+      <div className="flex items-center justify-between">
+        {user && (
+          <button
+            onClick={() => { setEditItem(null); setShowForm(true); }}
+            className="inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" /> Add Intervention
+          </button>
+        )}
+        <span className="text-[10px] font-mono text-muted-foreground ml-auto">
+          {items.length} result{items.length !== 1 ? "s" : ""}
+        </span>
+      </div>
 
       {items.map((item, i) => (
         <div
