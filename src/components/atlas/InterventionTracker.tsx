@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
@@ -6,6 +6,7 @@ import { useInterventions, useDeleteIntervention, type Intervention } from "@/ho
 import { useAuth } from "@/hooks/useAuth";
 import { InterventionForm } from "./InterventionForm";
 import { OutcomeForm } from "./OutcomeForm";
+import { InterventionFilters } from "./InterventionFilters";
 import { Plus, Trash2, Pencil, BarChart3 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
